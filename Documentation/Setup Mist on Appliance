@@ -1,0 +1,27 @@
+This contains instructions for running the Mist Connections app on the CS50 appliance.
+It uses the "PSet 8" server style, in which a user access content served on the
+appliance from their native OS.
+
+The folder "mist" should be placed in the ~/vhosts/localhost/public/ folder,
+assuming that this folder is set up the same way it was for PSet 8.
+
+
+To set permissions within the folder, in a terminal window execute:
+
+cd ~/vhosts/localhost/public/mist
+find . -type d | xargs chmod 711
+find . -type f | xargs chmod 644
+
+
+Then set directory permissions in the same way that PSet 8 did, again from a
+terminal window:
+
+chmod 711 ~
+chmod 711 ~/vhosts
+chmod 711 ~/vhosts/localhost
+chmod 711 ~/vhosts/localhost/public
+chmod 711 ~/vhosts/localhost/public/mist
+
+Accessing [IP]/mist from a browser in your native OS (for testing, Chrome
+running on an OS 10.8 machine was used). You should be ready to start using
+Mist. Enjoy!

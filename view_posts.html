@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<!--
+
+view_posts.html
+Load nearby posts on a map
+
+-->
+
+<html>
+    <head>
+        <title>Mist: View Posts</title>
+
+        <!-- Pull CSS files -->
+        <link href="css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="css/bootstrap-theme.min.css" rel="stylesheet"/>
+        <link href="css/styles.css" rel="stylesheet"/>
+        
+        <!-- Declare styles for map canvas called in body -->
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+        <!-- Load Google Maps API -->
+        <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBGWmCmBKdItLVbzVCuoo0Zm17s3PiWwJY&sensor=true">
+        </script>
+        
+        <!-- Enter nearby posts in to JavaScript array of objects -->
+        <script type="text/javascript">
+        var closeposts = <?php echo json_encode($closeposts) ?>;
+        </script>
+
+        <!-- Pull user location -->
+        <script type="text/javascript">
+        var view_loc;
+        var viewlatlng;
+        var markerBounds = new google.maps.LatLngBounds();
+        
+        function loadposts()
+        {
+            // Options to feed in to location function
+            var options =
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+            
+            // Handle error if location function returns one
+            function error(err)
+            {
+                console.warn('ERROR(' + err.code + '): ' + err.message);
+            };
+            
+            // find nearby posts in success case
+            function success(pos)
+            {
+                view_loc = pos.coords;
+                viewlatlng = new google.maps.LatLng(view_loc.latitude, view_loc.longitude);
+                
+                
+                // initialize map with specified location
+                var mapOptions = {
+                  center: viewlatlng,
+                  zoom: 14
+                };
+                
+                var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+                function makewindowevent(map, infowindow, marker) {
+                    infowindow.open(map,marker);
+                    }
+                    
+                // add closest posts to map
+                for (x = 0; x < closeposts.length; x++)
+                {     
+                    var infowindow = new google.maps.InfoWindow({content: (x + 1).toString()});
+                    
+                    var postlatlng = new google.maps.LatLng(closeposts[x].lat, closeposts[x].lng);
+                    
+                    var marker = new google.maps.Marker({ 
+                        map: map,
+                        position: postlatlng,
+                        title: 'Location',
+                        draggable: false,
+                        raiseOnDrag: false
+                        });
+                        
+                    markerBounds.extend(marker.position);
+                    
+                    google.maps.event.addListener(marker, 'click', makewindowevent(map, infowindow, marker));
+                    
+                    map.fitBounds(markerBounds);
+                }
+            };
+            
+            // call location function, which creates map
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          }
+        </script>
+
+    </head>
+    
+    <body>
+        <h1> <img src="img/Fotolia_52138608_XS.jpg" id="img"> Mist - View Nearby Posts </h1>
+
+        <h4> Showing the 10 posts closest to you in the category you selected. 
+        <br/> Note: If you don't see a map below, make sure your location settings allow us to see your location.</h4>
+        
+        <ul class="nav nav-pills">
+          <li><a href="fbphplogin.php">Continue</a></li>
+        </ul>
+        
+        <!-- Create map div and load map -->
+    	<div id="map-canvas"/>
+    	    <body onload="loadposts()">
+        </div>
+        
+        <!-- Display Posts -->
+        <div>
+            <table class="table" id="postlist">
+
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Post</th>
+                        <th>Category</th>
+                        <th>Date and Time</th>
+                        <th>Approx. Distance</th>
+                    </tr>
+                </thead>
+
+            <tbody>
+            
+                <?php $counter = 1 ?>
+                
+                <?php foreach ($closeposts as $post): ?>
+
+                    <tr>
+                        <td><?= $counter ?></td>
+                        <td><?= substr($post["first_name"],0,-1)." ".substr($post["last_name"],0,1)."." ?></td>
+                        
+                        <!-- Make sure to print output without escape characters -->
+                        <td><?= str_replace("\\","",$post["post"]) ?></td>
+                        <td><?= $post["category"] ?></td>
+                        <td><?= $post["time"] ?></td>
+                        <td><?= number_format($post["dist"], 2, '.', ',') ?> miles</td>
+                    </tr>
+                    
+                <?php $counter += 1 ?>
+                
+                <? endforeach ?>
+            </tbody>
+        </div>
+        
+        <script>
+            // Color rows based on category
+            var rows = document.getElementById("postlist").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+            // loops through each row and assigns a color
+            for (i = 0; i < rows.length; i++) 
+            {
+                rows[i].className = closeposts[i].category.substr(0,4);           
+            }
+        </script>
+        
+
+        
+    </body>
+</html>
+

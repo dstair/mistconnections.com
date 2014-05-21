@@ -1,0 +1,65 @@
+
+<!doctype html>
+<html xmlns:fb="http://www.facebook.com/2008/fbml">
+  <head>
+    <title>Mist Connections</title>
+    
+    <!-- Pull CSS files -->
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet"/>
+    <link href="css/styles.css" rel="stylesheet"/>
+    
+  </head>
+  <body>
+  
+    <h1><img src="img/Fotolia_52138608_XS.jpg" id="img"> Mist Connections</h1>
+    
+  
+  
+    <?php if ($user): ?>
+      <?php $params = array( 'next' => 'http://mistconnections.com/logout.php' ); ?>
+      <?php $logoutUrl = $facebook->getLogoutUrl($params); ?>
+
+      <form action="new_post.php" method="post">
+        <fieldset>
+          <div class="form-group">
+            <input autofocus type="hidden"  name="firstname" value= <?= $user_profile["first_name"] ?>/>
+          </div>
+          <div class="form-group">
+            <input autofocus type="hidden" name="lastname" value= <?= $user_profile["last_name"] ?>/>
+          </div>
+          <div class="form-group">
+            <input autofocus type="hidden" name="userid" value=<?= $user_profile["id"] ?>/>
+          </div>    
+          
+          <div class="form-group">
+              <button type="submit" class="btn btn-default">New Post</button>
+          </div>
+        </fieldset>
+      </form>
+
+      <br/>
+      <br/>
+      
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="req_view_posts.php">View Posts</a></li>
+        <li><a href="<?php echo $logoutUrl; ?>">Log Out</a></li>
+      </ul>
+      
+
+
+    <?php else: ?>
+      <div>
+        <ul class="nav nav-pills nav-stacked">
+          <li><a href="req_view_posts.php">View Posts</a></li>
+          <li><a href="<?php echo $loginUrl; ?>">Log in with Facebook to Post</a></li>
+        </ul>
+        
+        <h4>Mist is an app that allows users to shared their location-tagged thoughts with anyone on the planet.
+            <br/>Welcome! Please log in to make a post.</h4>
+
+      </div>
+    <?php endif ?>
+
+  </body>
+</html>

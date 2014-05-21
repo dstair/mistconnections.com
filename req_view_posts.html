@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<!--
+
+view_posts.html
+
+Load a map
+
+-->
+
+<html>
+    <head>
+        <title>Mist: View Posts</title>
+
+        <!-- Pull CSS files -->
+        <link href="css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="css/bootstrap-theme.min.css" rel="stylesheet"/>
+        <link href="css/styles.css" rel="stylesheet"/>
+        
+        <!-- Declare styles for map canvas called in body -->
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+        <!-- Load Google Maps API -->
+        <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBGWmCmBKdItLVbzVCuoo0Zm17s3PiWwJY&sensor=true">
+        </script>
+        
+        <!-- Pull user location -->
+        <script type="text/javascript">
+        var view_loc;
+        var viewlatlng;
+        
+        function loadposts()
+        {
+            // Options to feed in to location function
+            var options =
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+            
+            // Handle error if location function returns one
+            function error(err)
+            {
+                console.warn('ERROR(' + err.code + '): ' + err.message);
+            };
+            
+            // show map of location in success case
+            function success(pos)
+            {
+                view_loc = pos.coords;
+                viewlatlng = new google.maps.LatLng(view_loc.latitude, view_loc.longitude);
+                
+                // initialize map with specified location
+                var mapOptions = {
+                  center: viewlatlng,
+                  zoom: 14
+                };
+                
+                var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+
+                // draw map
+                var infowindow = new google.maps.InfoWindow({
+                    content: 'Location'
+                });
+
+                var marker = new google.maps.Marker({ 
+                    map: map,
+                    position: viewlatlng,
+                    title: 'Location',
+                    draggable: true,
+                    raiseOnDrag: false
+                    });
+                    
+                google.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map,marker);
+                });   
+                
+                // Update lat/lng when map is moved
+                google.maps.event.addListener(marker, 'mouseup', function()
+                { 
+                    document.getElementById("latitude").value = marker.getPosition().pb;  
+                    document.getElementById("longitude").value = marker.getPosition().qb;
+                })
+                
+                // store marker latitude and longitude in form
+                document.getElementById("latitude").value = marker.getPosition().pb;  
+                document.getElementById("longitude").value = marker.getPosition().qb;
+            };
+            
+            // call location function, which also creates map over location
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          }
+        </script>
+
+    </head>
+    
+    <body>
+        <h1> <img src="img/Fotolia_52138608_XS.jpg" id="img"> Mist - View Posts Nearby </h1>
+        
+        <!-- Get user input -->
+        
+        <div id="form-fmt">
+            <form action="view_posts.php" method="post">
+                <fieldset>
+                    
+                    <!-- name/post/category -->
+                    <h4> Pick a category: </h4>
+                    <div class="form-group">
+                        <input name="Category" type="radio" value="All"/> All<br>
+                        <input name="Category" type="radio" value="Food"/> Food<br>
+                        <input name="Category" type="radio" value="Music"/> Music<br>
+                        <input name="Category" type="radio" value="Rants"/> Rants<br>
+                        <input name="Category" type="radio" value="Random Thoughts"/> Random Thoughts<br>
+                        <input name="Category" type="radio" value="Celebrity Sightings"/> Celebrity Sightings<br>
+                        <input name="Category" type="radio" value="Missed Connections"/> Missed Connections<br>
+                        <input name="Category" type="radio" value="Reviews"/> Reviews<br>
+                    </div>
+                    
+                    <!-- Lat/Long (autofilled) -->
+                    
+                    <h4> Location: </h4>
+                    <div class="form-group">
+                        Latitude: <input name="latitude" id="latitude" type="number" min="-180" max="180" step="any"/>
+                    </div>
+                    <div class="form-group">
+                        Longitude: <input name="longitude" id="longitude" type="number" min="-90" max="90" step="any"/>
+                    </div>
+                    
+                    <!-- Submit! -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default">View Nearby Posts</button>
+                    </div>
+                </fieldset>
+            </form>
+            <br/>
+            <h4> View Posts Close To: </h4>
+            
+            <text> Your current location may be filled in by default. If you would like
+                to change this location, just drag the pin below. 
+                <br/> Note: If you don't see a map below, make sure your location settings allow us to see your location.</text>
+        </div>
+        
+        
+        <!-- Create map div and load map -->
+        
+    	<div id="map-canvas"/>
+    	<body onload="loadposts()">
+
+    </body>
+</html>
