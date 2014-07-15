@@ -1,16 +1,18 @@
+
+
+
 <!DOCTYPE html>
 
 <!--
 
-view_posts.html
-
-Load a map
+new_post_temp.php
+Take a new post from user and add it to the database
 
 -->
 
 <html>
     <head>
-        <title>Mist: View Posts</title>
+        <title>Mist</title>
 
         <!-- Pull CSS files -->
         <link href="css/bootstrap.min.css" rel="stylesheet"/>
@@ -22,15 +24,19 @@ Load a map
 
         <!-- Load Google Maps API -->
         <script type="text/javascript"
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBGWmCmBKdItLVbzVCuoo0Zm17s3PiWwJY&sensor=true">
+          src="https://maps.googleapis.com/maps/api/js?key=[KEY]&sensor=true">
         </script>
+        
+        <!-- Load JS Functions -->
+        <script src="js/functions.js"></script>
         
         <!-- Pull user location -->
         <script type="text/javascript">
-        var view_loc;
-        var viewlatlng;
+        //checkAuth();
+        var usr_loc;
+        var mylatlng;
         
-        function loadposts()
+        function getlocation()
         {
             // Options to feed in to location function
             var options =
@@ -46,37 +52,39 @@ Load a map
                 console.warn('ERROR(' + err.code + '): ' + err.message);
             };
             
-            // show map of location in success case
+            // print location in success case
             function success(pos)
             {
-                view_loc = pos.coords;
-                viewlatlng = new google.maps.LatLng(view_loc.latitude, view_loc.longitude);
+                usr_loc = pos.coords;
+                
+                mylatlng = new google.maps.LatLng(usr_loc.latitude, usr_loc.longitude);
                 
                 // initialize map with specified location
                 var mapOptions = {
-                  center: viewlatlng,
+                  center: mylatlng,
                   zoom: 14
                 };
                 
                 var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-
-
-                // draw map
+                    
+                // add window marking location
+                
                 var infowindow = new google.maps.InfoWindow({
                     content: 'Location'
                 });
 
                 var marker = new google.maps.Marker({ 
                     map: map,
-                    position: viewlatlng,
+                    position: mylatlng,
                     title: 'Location',
                     draggable: true,
-                    raiseOnDrag: false
+                    raiseOnDrag: true
                     });
                     
-                google.maps.event.addListener(marker, 'click', function() {
-                infowindow.open(map,marker);
-                });   
+                google.maps.event.addListener(marker, 'click', function()
+                {
+                    infowindow.open(map,marker);
+                })
                 
                 // Update lat/lng when map is moved
                 google.maps.event.addListener(marker, 'mouseup', function()
@@ -98,18 +106,46 @@ Load a map
     </head>
     
     <body>
-        <h1> <img src="img/Fotolia_52138608_XS.jpg" id="img"> Mist - View Posts Nearby </h1>
+        <h1> <img src="img/Fotolia_52138608_XS.jpg" id="img"> Mist - New Post </h1>
+        
         
         <!-- Get user input -->
         
         <div id="form-fmt">
-            <form action="view_posts.php" method="post">
+            <h4> Please enter the content of your post below. Only your first name and the first
+                letter of your last name from facebook will be used. </h4>
+            
+            <form action="add_post.php" method="post">
                 <fieldset>
                     
-                    <!-- name/post/category -->
-                    <h4> Pick a category: </h4>
+                    <!-- Fill in name using Facebook info -->
+                    
+                    <?php $display = substr($_POST["firstname"],0,-1)." ".substr($_POST["lastname"],0,1)."." ?>
+                    <h4> Display Name: <br/> <br/> <?php printf($display) ?> </h4>
+                    
+                    <!-- Pass first, last name, and user ID to SQL server using hidden fields
+                        If user didn't come from page new_post.php, these  -->  
+                    
+                    
                     <div class="form-group">
-                        <input name="Category" type="radio" value="All"/> All<br>
+                        <input class="form-control" name="firstname" value=<?= $_POST["firstname"] ?> type="hidden" readonly/>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" name="lastname" value=<?= $_POST["lastname"] ?> type="hidden" readonly/>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" name="userid" value=<?= $_POST["userid"] ?> type="hidden" readonly/>
+                    </div>
+                    
+                    
+                    
+                    <h4> Message: </h4>
+                    <div class="form-group">
+                        <input autofocus class="form-control" name="New_post" placeholder="Enter post here (500 letter max)" type="text"/>
+                    </div>
+                    
+                    <h4> Category: </h4>
+                    <div class="form-group">
                         <input name="Category" type="radio" value="Food"/> Food<br>
                         <input name="Category" type="radio" value="Music"/> Music<br>
                         <input name="Category" type="radio" value="Rants"/> Rants<br>
@@ -119,8 +155,8 @@ Load a map
                         <input name="Category" type="radio" value="Reviews"/> Reviews<br>
                     </div>
                     
+
                     <!-- Lat/Long (autofilled) -->
-                    
                     <h4> Location: </h4>
                     <div class="form-group">
                         Latitude: <input name="latitude" id="latitude" type="number" min="-180" max="180" step="any"/>
@@ -131,14 +167,12 @@ Load a map
                     
                     <!-- Submit! -->
                     <div class="form-group">
-                        <button type="submit" class="btn btn-default">View Nearby Posts</button>
+                        <button type="submit" class="btn btn-default">Submit Post</button>
                     </div>
                 </fieldset>
             </form>
-            <br/>
-            <h4> View Posts Close To: </h4>
             
-            <text> Your current location may be filled in by default. If you would like
+            <text> Your current location is filled in by default. If you would like
                 to change this location, just drag the pin below. 
                 <br/> Note: If you don't see a map below, make sure your location settings allow us to see your location.</text>
         </div>
@@ -147,7 +181,7 @@ Load a map
         <!-- Create map div and load map -->
         
     	<div id="map-canvas"/>
-    	<body onload="loadposts()">
+    	<body onload="getlocation()">
 
     </body>
 </html>

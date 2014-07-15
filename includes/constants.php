@@ -9,16 +9,16 @@
      */
 
     // GoDaddy database's name
-    define("DATABASE", "Mist");
+    define("DATABASE", "-");
 
     // GoDaddy database's password
-    define("PASSWORD", "O!lV2rnfstx");
+    define("PASSWORD", "-");
 
     // GoDaddy database's server
-    define("SERVER", "Mist.db.12090664.hostedresource.com");
+    define("SERVER", "-");
 
     // GoDaddy database's username
-    define("USERNAME", "Mist");
+    define("USERNAME", "-");
 
 ?>
 
