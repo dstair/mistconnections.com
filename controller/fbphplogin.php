@@ -23,8 +23,8 @@ require 'facebook-php-sdk-master/src/facebook.php';
 
 // Create FB Application instance (below is Daniel Stair's Mist app info)
 $facebook = new Facebook(array(
-  'appId'  => '697240470295702',
-  'secret' => '0db81707f98481e44427ac88bcdb1c19',
+  'appId'  => '',
+  'secret' => '',
 ));
 
 // Get User ID
